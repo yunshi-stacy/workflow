@@ -79,8 +79,6 @@ $ = require('jquery');
   return $('.tagline').append("" + item);
 })('The most creative minds in Art');
 
-fill;
-
 $(function() {
   var Mustache = require('mustache');
  
