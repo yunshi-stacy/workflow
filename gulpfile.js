@@ -6,18 +6,39 @@ var gulp = require('gulp'),
     connect = require('gulp-connect'),
 
     concat = require('gulp-concat');
+var env,
+    coffeeSources,
+    jsSources,
+    sassSources,
+    htmlSources,
+    jsonSources,
+    outputDir;
 
-var coffeeSources = [
+env = process.env.NODE_ENV || 'development';
+
+if (env === 'development') {
+  outputDir = 'builds/developmenet/';
+  sassStyle = 'expanded';
+} else {
+  outputDir = 'builds/production/';
+  sassStyle = 'compressed';
+}
+
+
+coffeeSources = [
   'components/coffee/*.coffee'
 ];
-var jsSources = [
+jsSources = [
   'components/scripts/*.js'
 ];
-var sassSources = [
+sassSources = [
   'components/sass/style.scss'
 ];
-var htmlSources = [
-  'builds/development/*.html'
+htmlSources = [
+  outputDir + '*.html'
+];
+jsonSources = [
+  outputDir + 'js/*.json'
 ];
 
 gulp.task('coffee', function(){
@@ -30,18 +51,18 @@ gulp.task('js', function(){
   gulp.src(jsSources)
     .pipe(concat('script.js'))
     .pipe(browserify())
-    .pipe(gulp.dest('builds/development/js'))
+    .pipe(gulp.dest(outputDir + 'js'))
     .pipe(connect.reload());
 });
 gulp.task('compass', function(){
   gulp.src(sassSources)
     .pipe(compass({
       sass: 'components/sass',
-      image: 'builds/development/images',
+      image: outputDir + 'images',
       style: 'expanded'
     }))
       .on('error', gutil.log)
-    .pipe(gulp.dest('builds/development/css'))
+    .pipe(gulp.dest(outputDir + 'css'))
     .pipe(connect.reload());
 });
 gulp.task('watch', function(){
@@ -49,12 +70,12 @@ gulp.task('watch', function(){
   gulp.watch(jsSources, ['js']);
   gulp.watch('components/sass/*.scss', ['compass']);
   gulp.watch(htmlSources, ['html']);
-  gulp.watch('builds/development/js/*.json', ['json']);
+  gulp.watch(outputDir + 'js/*.json', ['json']);
 });
 
 gulp.task('connect', function(){
   connect.server({
-      root: 'builds/development/',
+      root: outputDir + '',
       livereload: true
   });
 });
@@ -68,7 +89,7 @@ gulp.task('html', function(){
 });
 
 gulp.task('json', function(){
-  gulp.src('builds/development/js/*.json')
+  gulp.src(jsonSources)
     .pipe(connect.reload());
 });
 
